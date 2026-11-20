@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>IPADownStudio</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Left Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true">
+          <svg viewBox="0 0 36 36" width="32" height="32" fill="none">
+            <rect width="36" height="36" rx="9" fill="url(#brandGrad)"/>
+            <path d="M18 8v12m0 0l-4.5-4.5M18 20l4.5-4.5M10.5 24.5h15" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="brandGrad" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0A84FF"/>
+                <stop offset="1" stop-color="#0055D4"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name" data-i18n="appTitle">IPADownStudio</div>
+          <div class="brand-sub" data-i18n="appSubtitle">App Store 历史版本下载工具</div>
+        </div>
+      </div>
+
+      <nav class="nav-list" id="nav-list">
+        <button class="nav-item active" data-view="search">
+          <span class="nav-icon">🔍</span>
+          <span class="nav-label" data-i18n="navSearch">软件搜索</span>
+        </button>
+        <button class="nav-item" data-view="purchased">
+          <span class="nav-icon">🛍️</span>
+          <span class="nav-label" data-i18n="navPurchased">已购应用</span>
+        </button>
+        <button class="nav-item" data-view="downloads">
+          <span class="nav-icon">⬇️</span>
+          <span class="nav-label" data-i18n="navDownloads">下载任务</span>
+          <span class="nav-badge hidden" id="nav-downloads-badge">0</span>
+        </button>
+        <button class="nav-item" data-view="transfer">
+          <span class="nav-icon">📱</span>
+          <span class="nav-label" data-i18n="navTransfer">设备传输</span>
+        </button>
+        <button class="nav-item" data-view="accounts">
+          <span class="nav-icon">👤</span>
+          <span class="nav-label" data-i18n="navAccounts">账号管理</span>
+        </button>
+        <button class="nav-item" data-view="settings">
+          <span class="nav-icon">⚙️</span>
+          <span class="nav-label" data-i18n="navSettings">设置与诊断</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="account-pill" id="sidebar-account-pill" title="Switch or Sign In">
+          <div class="account-avatar" id="sidebar-account-avatar">?</div>
+          <div class="account-meta">
+            <div class="account-title" id="sidebar-account-name">未登录 Apple 账号</div>
+            <div class="account-sub" id="sidebar-account-sub">点击登录或切换</div>
+          </div>
+          <span class="status-dot" id="sidebar-account-dot"></span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Stage -->
+    <main class="main-stage">
+      <!-- View 1: App Search -->
+      <section class="view active" id="view-search">
+        <header class="view-header">
+          <div>
+            <h1 data-i18n="searchTitle">搜索 App Store 应用</h1>
+            <p class="subtitle" data-i18n="searchSubtitle">支持输入应用名称、App Store ID、Bundle ID 或商店链接</p>
+          </div>
+        </header>
+
+        <div class="toolbar-card">
+          <form class="search-form" id="search-form">
+            <input type="text" id="search-input" class="input search-input" data-i18n-placeholder="searchPlaceholder" placeholder="例如：微信、414478124、com.tencent.xin 或 apps.apple.com 链接" autocomplete="off">
+            <select id="search-country" class="select"></select>
+            <select id="search-platform" class="select">
+              <option value="iphone" data-i18n="platformIphone">iPhone (iOS)</option>
+              <option value="ipad" data-i18n="platformIpad">iPad (iPadOS)</option>
+              <option value="macos" data-i18n="platformMacos">Mac (macOS)</option>
+              <option value="appletv" data-i18n="platformAppletv">Apple TV (tvOS)</option>
+            </select>
+            <button type="submit" class="btn btn-primary" id="search-submit-btn" data-i18n="searchBtn">搜索</button>
+            <button type="button" class="btn btn-secondary" id="direct-versions-btn" data-i18n="directVersionsBtn">直接查版本</button>
+          </form>
+        </div>
+
+        <div id="search-results" class="cards-grid"></div>
+      </section>
+
+      <!-- View 2: Purchased Apps -->
+      <section class="view" id="view-purchased">
+        <header class="view-header">
+          <div>
+            <h1 data-i18n="purchasedTitle">已购应用</h1>
+            <p class="subtitle" data-i18n="purchasedSubtitle">查看当前 Apple 账号已拥有的 App 列表</p>
+          </div>
+          <div class="header-actions">
+            <select id="purchases-country" class="select"></select>
+            <select id="purchases-platform" class="select">
+              <option value="iphone" data-i18n="platformIphone">iPhone (iOS)</option>
+              <option value="ipad" data-i18n="platformIpad">iPad (iPadOS)</option>
+              <option value="macos" data-i18n="platformMacos">Mac (macOS)</option>
+              <option value="appletv" data-i18n="platformAppletv">Apple TV (tvOS)</option>
+            </select>
+            <button class="btn btn-secondary" id="purchases-refresh-btn" data-i18n="refreshBtn">刷新列表</button>
+          </div>
+        </header>
+
+        <div id="purchases-list" class="cards-grid"></div>
+
+        <div class="pagination-bar" id="purchases-pagination">
+          <button class="btn btn-secondary" id="purchases-prev" data-i18n="prevPage">上一页</button>
+          <span class="page-label" id="purchases-page-label"></span>
+          <button class="btn btn-secondary" id="purchases-next" data-i18n="nextPage">下一页</button>
+        </div>
+      </section>
+
+      <!-- View 3: Downloads -->
+      <section class="view" id="view-downloads">
+        <header class="view-header">
+          <div>
+            <h1 data-i18n="downloadsTitle">下载任务</h1>
+            <p class="subtitle" data-i18n="downloadsSubtitle">管理 IPA 下载队列，支持暂停后断点续传、许可重试与局域网传输</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-secondary" id="open-download-dir-btn" data-i18n="openDownloadDir">打开下载目录</button>
+          </div>
+        </header>
+
+        <div class="filter-pills" id="download-filters">
+          <button class="pill active" data-filter="all" data-i18n="filterAll">全部</button>
+          <button class="pill" data-filter="active" data-i18n="filterActive">进行中</button>
+          <button class="pill" data-filter="completed" data-i18n="filterCompleted">已完成</button>
+          <button class="pill" data-filter="other" data-i18n="filterOther">已暂停/失败</button>
+        </div>
+
+        <div id="downloads-list" class="task-list"></div>
+      </section>
+
+      <!-- View 4: Device Transfer -->
+      <section class="view" id="view-transfer">
+        <header class="view-header">
+          <div>
+            <h1 data-i18n="transferTitle">设备传输</h1>
+            <p class="subtitle" data-i18n="transferSubtitle">通过同一局域网下的二维码，将本地 IPA 文件快速传输到 iPhone / iPad</p>
+          </div>
+        </header>
+
+        <div class="transfer-layout">
+          <div class="panel">
+            <div class="field">
+              <label data-i18n="transferSelectSource">选择要传输的 IPA 文件</label>
+              <div class="row-gap">
+                <select id="transfer-completed-select" class="select flex-1"></select>
+                <button class="btn btn-secondary" id="transfer-pick-file-btn" data-i18n="pickLocalIpaBtn">选择本地 .ipa 文件...</button>
+              </div>
+              <input type="text" id="transfer-file-path" class="input mt-8" readonly placeholder="C:\...\App.ipa">
+            </div>
+
+            <div class="field">
+              <label data-i18n="selectAdapter">选择局域网网卡 (IPv4)</label>
+              <div class="row-gap">
+                <select id="transfer-adapter-select" class="select flex-1"></select>
+                <button class="btn btn-secondary" id="transfer-refresh-adapters" data-i18n="refreshAdapters">刷新网卡</button>
+              </div>
+            </div>
+
+            <div class="row-gap mt-16">
+              <button class="btn btn-primary" id="transfer-start-btn" data-i18n="startShareBtn">启动局域网分享</button>
+              <button class="btn btn-danger hidden" id="transfer-stop-btn" data-i18n="stopShareBtn">停止分享</button>
+            </div>
+
+            <div class="info-banner mt-16" data-i18n="transferTip"></div>
+
+            <div class="mt-20">
+              <div class="section-row">
+                <h3 data-i18n="transferLogsTitle">传输记录</h3>
+                <span class="badge" id="transfer-count-badge">0</span>
+              </div>
+              <div id="transfer-logs" class="logs-box"></div>
+            </div>
+          </div>
+
+          <div class="panel qr-panel">
+            <div class="qr-mode-tabs">
+              <button class="pill active" data-qr-mode="page" data-i18n="qrTabLanding">手机下载页（推荐）</button>
+              <button class="pill" data-qr-mode="direct" data-i18n="qrTabDirect">直链 IPA 下载</button>
+            </div>
+            <div class="qr-box" id="transfer-qr-box">
+              <div class="qr-placeholder">QR</div>
+            </div>
+            <div class="url-copy-row">
+              <input type="text" id="transfer-active-url" class="input" readonly placeholder="http://...">
+              <button class="btn btn-secondary" id="transfer-copy-url-btn" data-i18n="copyUrlBtn">复制链接</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- View 5: Apple Accounts -->
+      <section class="view" id="view-accounts">
+        <header class="view-header">
+          <div>
+            <h1 data-i18n="accountsTitle">Apple 账号管理</h1>
+            <p class="subtitle" data-i18n="accountsSubtitle">支持多账号隔离存储会话，密码与双重认证码绝不落盘</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-primary" id="open-login-modal-btn" data-i18n="addAccountBtn">登录 Apple 账号</button>
+          </div>
+        </header>
+
+        <div id="accounts-list" class="accounts-grid"></div>
+      </section>
+
+      <!-- View 6: Settings & Diagnostics -->
+      <section class="view" id="view-settings">
+        <header class="view-header">
+          <div>
+            <h1 data-i18n="settingsTitle">设置与引擎诊断</h1>
+            <p class="subtitle" data-i18n="settingsSubtitle">配置界面偏好、下载目录、并发数及本地 ipatool 运行环境</p>
+          </div>
+        </header>
+
+        <div class="settings-grid">
+          <form class="panel" id="settings-form">
+            <h3 data-i18n="prefSection">界面与常规</h3>
+            <div class="form-grid mt-12">
+              <div class="field">
+                <label data-i18n="langLabel">界面语言</label>
+                <select id="set-language" class="select">
+                  <option value="zh-CN">简体中文</option>
+                  <option value="en-US">English</option>
+                </select>
+              </div>
+              <div class="field">
+                <label data-i18n="themeLabel">外观主题</label>
+                <select id="set-theme" class="select">
+                  <option value="system" data-i18n="themeSystem">跟随系统</option>
+                  <option value="light" data-i18n="themeLight">浅色模式</option>
+                  <option value="dark" data-i18n="themeDark">深色模式</option>
+                </select>
+              </div>
+              <div class="field">
+                <label data-i18n="defaultStoreLabel">默认商店地区</label>
+                <select id="set-storefront" class="select"></select>
+              </div>
+              <div class="field">
+                <label data-i18n="defaultPlatformLabel">默认设备平台</label>
+                <select id="set-platform" class="select">
+                  <option value="iphone" data-i18n="platformIphone">iPhone (iOS)</option>
+                  <option value="ipad" data-i18n="platformIpad">iPad (iPadOS)</option>
+                  <option value="macos" data-i18n="platformMacos">Mac (macOS)</option>
+                  <option value="appletv" data-i18n="platformAppletv">Apple TV (tvOS)</option>
+                </select>
+              </div>
+            </div>
+
+            <h3 class="mt-20" data-i18n="downloadSection">下载设置</h3>
+            <div class="field mt-12">
+              <label data-i18n="downloadDirLabel">IPA 保存目录</label>
+              <div class="row-gap">
+                <input type="text" id="set-download-dir" class="input flex-1">
+                <button type="button" class="btn btn-secondary" id="set-browse-dir-btn" data-i18n="browseBtn">浏览...</button>
+              </div>
+            </div>
+
+            <div class="form-grid mt-12">
+              <div class="field">
+                <label data-i18n="concurrencyLabel">最大同时下载数</label>
+                <select id="set-concurrency" class="select">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                </select>
+              </div>
+              <div class="field">
+                <label data-i18n="customIpatoolLabel">自定义 ipatool.exe 路径</label>
+                <input type="text" id="set-custom-ipatool" class="input" placeholder="自动探测 current\Tools\ipatool.exe">
+              </div>
+            </div>
+
+            <label class="checkbox-row mt-12">
+              <input type="checkbox" id="set-auto-purchase">
+              <span data-i18n="autoPurchaseLabel">下载前自动尝试获取免费应用许可 (--purchase)</span>
+            </label>
+
+            <div class="mt-20">
+              <button type="submit" class="btn btn-primary" data-i18n="saveSettingsBtn">保存设置</button>
+            </div>
+          </form>
+
+          <div class="panel">
+            <h3 data-i18n="diagSection">本地引擎诊断</h3>
+            <div class="diag-list mt-12" id="diag-list"></div>
+            <div class="info-banner mt-16" data-i18n="aboutNote"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Version History Slide-Over Drawer -->
+  <div class="drawer-backdrop hidden" id="version-drawer-backdrop">
+    <aside class="drawer" id="version-drawer">
+      <div class="drawer-header">
+        <div class="drawer-app-info">
+          <img id="drawer-app-icon" class="app-icon-sm" alt="" src="">
+          <div>
+            <h2 id="drawer-app-name">App Name</h2>
+            <div class="muted-sm" id="drawer-app-sub">bundle.id · App ID</div>
+          </div>
+        </div>
+        <div class="row-gap">
+          <button class="btn btn-secondary" id="drawer-purchase-btn" data-i18n="drawerAcquireLicenseBtn">获取免费许可</button>
+          <button class="btn btn-ghost" id="drawer-close-btn" data-i18n="closeBtn">关闭</button>
+        </div>
+      </div>
+
+      <div id="drawer-corefp-banner" class="info-banner warning hidden" data-i18n="drawerCoreFpBanner"></div>
+
+      <div class="drawer-controls">
+        <input type="text" id="drawer-filter-input" class="input flex-1" data-i18n-placeholder="drawerFilterPlaceholder" placeholder="筛选版本号或 External Version ID...">
+        <div class="row-gap">
+          <input type="text" id="drawer-manual-id" class="input input-sm" data-i18n-placeholder="drawerManualIdPlaceholder" placeholder="输入已知 External Version ID">
+          <button class="btn btn-secondary" id="drawer-manual-btn" data-i18n="drawerManualDownloadBtn">按版本 ID 下载</button>
+        </div>
+      </div>
+
+      <div class="drawer-body" id="drawer-body">
+        <table class="ver-table">
+          <thead>
+            <tr>
+              <th data-i18n="drawerColIndex">#</th>
+              <th data-i18n="drawerColExtId">版本 ID</th>
+              <th data-i18n="drawerColVersion">版本号</th>
+              <th data-i18n="drawerColDate">发布日期</th>
+              <th data-i18n="drawerColSize">大小</th>
+              <th data-i18n="drawerColMinOs">最低 iOS</th>
+              <th data-i18n="drawerColAction">操作</th>
+            </tr>
+          </thead>
+          <tbody id="drawer-table-body"></tbody>
+        </table>
+      </div>
+
+      <div class="drawer-footer">
+        <span class="muted-sm" id="drawer-total-label"></span>
+        <div class="row-gap">
+          <button class="btn btn-secondary" id="drawer-prev-page" data-i18n="prevPage">上一页</button>
+          <span class="page-label" id="drawer-page-label">1 / 1</span>
+          <button class="btn btn-secondary" id="drawer-next-page" data-i18n="nextPage">下一页</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Login / 2FA Modal -->
+  <div class="modal-backdrop hidden" id="login-modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="login-modal-title" data-i18n="loginModalTitle">登录 Apple ID</h2>
+        <button class="btn btn-ghost" id="login-modal-close">✕</button>
+      </div>
+
+      <form id="login-step1-form">
+        <div class="field">
+          <label data-i18n="loginEmailLabel">Apple ID 邮箱 / 手机号</label>
+          <input type="text" id="login-email" class="input" required autocomplete="username">
+        </div>
+        <div class="field mt-12">
+          <label data-i18n="loginPasswordLabel">密码</label>
+          <input type="password" id="login-password" class="input" required autocomplete="current-password">
+        </div>
+        <div class="field mt-12">
+          <label data-i18n="loginRegionNoteLabel">账号所属区服备注（可选）</label>
+          <select id="login-region" class="select"></select>
+        </div>
+        <div class="info-banner mt-12" data-i18n="loginSecurityNote"></div>
+        <div class="modal-error hidden" id="login-error-box"></div>
+        <div class="modal-actions mt-16">
+          <button type="button" class="btn btn-secondary" id="login-cancel-btn" data-i18n="cancelBtn">取消</button>
+          <button type="submit" class="btn btn-primary" id="login-submit-btn" data-i18n="loginSubmitBtn">登录</button>
+        </div>
+      </form>
+
+      <form id="login-step2-form" class="hidden">
+        <p class="subtitle" data-i18n="twoFaDesc"></p>
+        <div class="field mt-12">
+          <label data-i18n="twoFaCodeLabel">6 位验证码</label>
+          <input type="text" id="login-2fa-code" class="input code-input" maxlength="8" inputmode="numeric" placeholder="000000" required>
+        </div>
+        <div class="modal-error hidden" id="twofa-error-box"></div>
+        <div class="modal-actions mt-16">
+          <button type="button" class="btn btn-secondary" id="twofa-cancel-btn" data-i18n="cancelBtn">取消</button>
+          <button type="submit" class="btn btn-primary" id="twofa-submit-btn" data-i18n="twoFaSubmitBtn">提交验证</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirm Delete Task Modal -->
+  <div class="modal-backdrop hidden" id="confirm-modal-backdrop">
+    <div class="modal modal-sm">
+      <h3 id="confirm-modal-msg"></h3>
+      <label class="checkbox-row mt-12 hidden" id="confirm-delete-file-row">
+        <input type="checkbox" id="confirm-delete-file-cb">
+        <span data-i18n="alsoDeleteFile">同时删除本地已下载的 IPA 文件</span>
+      </label>
+      <div class="modal-actions mt-16">
+        <button class="btn btn-secondary" id="confirm-no-btn" data-i18n="cancelBtn">取消</button>
+        <button class="btn btn-danger" id="confirm-yes-btn" data-i18n="confirmBtn">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="/i18n.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

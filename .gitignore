@@ -1,0 +1,20 @@
+# Compiled binaries and native libraries
+IPADownStudio.exe
+*.exe
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Runtime data, external tools, and downloaded packages
+data/
+Tools/
+*.ipa
+*.tmp
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
